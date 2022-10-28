@@ -1,0 +1,106 @@
+#include <iostream>
+#include <vector>
+#include <stack>
+#include <algorithm>
+
+class Deq {
+private:
+    int r_max;
+
+    std::stack<int> l_max;
+    std::vector<int> lt;
+    std::vector<int> rt;
+
+public:
+    Deq() : r_max(-1000000001) {}
+
+    void cust_pop();
+    void cust_push(int v);
+    int max_val() const;
+};
+
+int main() {
+    int n_num = 0; // number of elements in values sequence
+    int m_num = 0; // number of queries
+    int val = 0; // buffer for inputting of int values
+    char ch_val = 0; // buffer for outputting of char values
+
+    std::cin >> n_num;
+
+    std::vector<int> vt; // vector to storage sequence of values
+
+    // filling of values vector
+    for (int i = 0; i < n_num; ++i) {
+        std::cin >> val;
+        vt.push_back(val);
+    }
+
+    std::cin >> m_num;
+
+    std::vector<char> ch_vt; // vector to storage sequence of queries
+    std::vector<int> res(m_num); // vector to storage results
+
+    // filling of query vector
+    for (int i = 0; i < m_num; ++i) {
+        std::cin >> ch_val;
+        ch_vt.push_back(ch_val);
+    }
+
+    // declaring of created data structure to conveniently
+    // manipulate with values by queries
+    Deq dq;
+
+    dq.cust_push(vt[0]);
+
+    std::vector<int>::iterator rt;
+    rt = vt.begin();
+
+    for (int is = 0; is < m_num; ++is) {
+        if (ch_vt[is] == 'R') {
+            ++rt;
+            dq.cust_push(*rt);
+        }
+        else
+            dq.cust_pop();
+
+        res[is] = dq.max_val();
+    }
+
+    // results outputting
+    std::vector<int>::iterator itr;
+    itr = res.begin();
+	
+    while (itr != res.end()) {
+        std::cout << *itr << ' ';
+        ++itr;
+    }
+
+    return 0;
+}
+
+void Deq::cust_pop() {
+    if (lt.empty()) {
+        while (!rt.empty()) {
+            lt.push_back(rt.back());
+            if (l_max.empty())
+                l_max.push(rt.back());
+            else 
+            {
+                l_max.push(std::max(l_max.top(), rt.back()));
+            }
+            rt.pop_back();
+        }
+        r_max = -1000000001;
+    }
+    lt.pop_back();
+    l_max.pop();
+}
+
+void Deq::cust_push(int v) {
+    r_max = std::max(r_max, v);
+    rt.push_back(v);
+}
+
+int Deq::max_val() const {
+    return l_max.empty() ? r_max : std::max(l_max.top(), r_max);
+}
